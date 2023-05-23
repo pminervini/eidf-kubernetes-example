@@ -1,1 +1,0 @@
-# eidf-kubernetes-example
