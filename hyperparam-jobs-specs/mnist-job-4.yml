@@ -1,0 +1,37 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mnist-single-job-4
+spec:
+  parallelism: 1
+  template:
+    metadata:
+      name: mnist-single-job
+      labels:
+        app: mnist-single-job
+    spec:
+      restartPolicy: Never
+      containers:
+       - name: pytorch
+         image: nvcr.io/nvidia/pytorch:22.01-py3
+         workingDir: /mnist-training
+         env:
+         - name: JOB_ID
+           value: "4"
+         command: ["bash"]
+         args: ["-c","python cifar10_train.py"]
+         computeResourceRequests: ["nvidia-gpu"]
+         volumeMounts:
+         - name: mnist-training
+           mountPath: /cifar10-training
+      volumes:
+      - name: mnist-training
+        gitRepo:
+          repository: https://github.com/NVIDIA-developer-blog/kubernetes-hyperparam-exp.git
+          revision: master
+          directory: .
+      computeResources:
+       - name: "nvidia-gpu"
+         resources:
+           limits:
+             nvidia.com/gpu: 1
